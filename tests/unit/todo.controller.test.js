@@ -6,6 +6,7 @@ const allTodos = require('../mock-data/all-todos.json')
 
 TodoModel.create = jest.fn()
 TodoModel.find = jest.fn()
+TodoModel.findById = jest.fn()
 
 let req, res, next
 beforeEach(() => {
@@ -62,5 +63,43 @@ describe('TodoController.getTodos', () => {
     })
     it('should handle errors in getTotus', () => {
         // :D
+    })
+})
+
+describe('TodoController.getTodoById', () => {
+    it('should have a getTodoByIds function', () => {
+        expect(typeof TodoController.getTodoById).toBe('function')
+    })
+    it('should call TodoModel.findById with route parameters', async () => {
+        req.params.todoId = process.env.TODO_ID
+        await TodoController.getTodoById(req,res,next)
+        expect(TodoModel.findById).toBeCalledWith(process.env.TODO_ID)
+    })
+    it('should return response with status 200 and requested todo', async () => {
+        const mockTodo = {
+            _id: "67e3c778417614c0288f0389",
+            title: "Prepare manual test",
+            done: false,
+            __v: 0
+        }
+        req.params = { todoId: "67e3c778417614c0288f0389" }
+        TodoModel.findById.mockResolvedValue(mockTodo);
+        await TodoController.getTodoById(req, res, next)
+        expect(res.statusCode).toBe(200)
+        expect(res._isEndCalled()).toBeTruthy()
+        expect(res._getJSONData()).toStrictEqual(mockTodo)
+    })
+    it('should do error handling and not error by itself', async () => {
+        const errorMessage = { message: "error finding todoModel" }
+        const rejectedPromise = Promise.reject(errorMessage)
+        TodoModel.findById.mockReturnValue(rejectedPromise)
+        await TodoController.getTodoById(req,res,next)
+        expect(next).toHaveBeenCalledWith(errorMessage)
+    }) // this errors so idk
+    it('should return 404 when item doesnt exist', async () => {
+        TodoModel.findById.mockReturnValue(null)
+        await TodoController.getTodoById(req, res, next)
+        expect(res.statusCode).toBe(404)
+        expect(res._isEndCalled()).toBeTruthy()
     })
 })
