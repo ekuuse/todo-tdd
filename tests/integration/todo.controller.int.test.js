@@ -50,16 +50,30 @@ describe(endpointUrl, () => {
     })
     it("PUT " + endpointUrl, async () => {
         const response = await request(app)
-            .post(endpointUrl + newTodoId)
+            .put(endpointUrl + newTodoId)
             .send(testData)
         expect(response.statusCode).toBe(200)
         expect(response.body.title).toBe(testData.title)
         expect(response.body.done).toBe(testData.done)
-    }) // fails
+    })
     it("should return 404 on PUT " + endpointUrl, async () => {
         const response = await request(app)
-            .post(endpointUrl + notExistingTodoId)
+            .put(endpointUrl + notExistingTodoId)
             .send(testData)
         expect(response.statusCode).toBe(404)
     })
+    it("DELETE " + endpointUrl, async () => {
+        const response = await request(app)
+            .delete(endpointUrl)
+            .send({ todoId: newTodoId })
+        expect(response.statusCode).toBe(200)
+        expect(response.body._id).toBe(newTodoId)
+    })
+    it("should return 404 on DELETE " + endpointUrl, async () => {
+        const response = await request(app)
+            .delete(endpointUrl)
+            .send({ todoId: "FUCK" })
+        expect(response.statusCode).toBe(404)
+    })
+    
 })
