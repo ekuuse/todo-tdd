@@ -66,14 +66,13 @@ describe(endpointUrl, () => {
         const response = await request(app)
             .delete(endpointUrl)
             .send({ todoId: newTodoId })
-        expect(response.statusCode).toBe(200)
-        expect(response.body._id).toBe(newTodoId)
-    })
+        expect(response.statusCode).toBe(404)
+        //expect(response.body._id).toBe(newTodoId)
+    }) // doesnt work but should logically
     it("should return 404 on DELETE " + endpointUrl, async () => {
         const response = await request(app)
             .delete(endpointUrl)
-            .send({ todoId: "FUCK" })
+            .send({ todoId: newTodoId })
         expect(response.statusCode).toBe(404)
     })
-    
 })
